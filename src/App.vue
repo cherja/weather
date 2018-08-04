@@ -2,10 +2,10 @@
   <div id="app">
     <p>Долгота : {{longitude}}</p>
     <p>Широта : {{latitude}}</p>
-    <p>Темпервтура: {{this.data.fact.temp}}</p>
-    <p>Ощущается как: {{this.data.fact.feels_like}}</p>
-    <img src="https://yastatic.net/weather/i/icons/blueye/color/svg/skc_n.svg" alt="">
-    <button @click="getCoordinate">Вычеслить</button>
+    <p>Темпервтура: {{this.data.main.temp}}</p>
+    <!-- <p>Ощущается как: {{this.data.fact.feels_like}}</p> -->
+    <img src="https://openweathermap.org/img/w/03d.png" alt="">
+    <button @click="getCoordinate">Вычеслить координаты</button>
     <button @click="getWeather">Получить погоду</button>
   </div>
 </template>
@@ -20,7 +20,7 @@ export default {
       longitude: '',
       latitude: '',
       data: {
-        fact: {
+        main: {
           temp: '',
           feels_like: ''
         }
@@ -36,18 +36,16 @@ export default {
       navigator.geolocation.getCurrentPosition((position) => {
         this.longitude = position.coords.longitude
         this.latitude = position.coords.latitude
-        console.log(this.data.fact.temp)
       })
     },
     getWeather () {
-      let proxy = 'https://cors-anywhere.herokuapp.com/'
-      let url = `http://api.weather.yandex.ru/v1/forecast?lat=${this.latitude}&lon=${this.longitude}&extra=true`
-      axios.get(proxy + url, {
-        'headers': {
-          'X-Yandex-API-Key': 'f506555a-bb96-4c14-af56-e8643f58989d'
-        }
-      })
-        .then(({data}) => (this.data = data))
+      const key = '&APPID=0072928dcc9b5b634bfff2cbf46fe606'
+      let url = 'http://api.openweathermap.org/data/2.5/weather?lat=47.22253036499023&lon=39.71870422363281&units=metric&lang=ru'
+      axios.get(url + key)
+        .then(({data}) => {
+          console.log(data)
+          this.data = data
+        })
         .catch(console.warn)
     }
   }
