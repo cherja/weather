@@ -7,6 +7,7 @@
     <img src="https://openweathermap.org/img/w/03d.png" alt="">
     <button @click="getCoordinate">Вычеслить координаты</button>
     <button @click="getWeather">Получить погоду</button>
+    <button @click="getAutocomplete">Получить автозаполнение</button>
   </div>
 </template>
 
@@ -43,8 +44,18 @@ export default {
       let url = 'http://api.openweathermap.org/data/2.5/weather?lat=47.22253036499023&lon=39.71870422363281&units=metric&lang=ru'
       axios.get(url + key)
         .then(({data}) => {
-          console.log(data)
+          // console.log(data)
           this.data = data
+        })
+        .catch(console.warn)
+    },
+    getAutocomplete () {
+      const key = 'AIzaSyC9vBiV87p-d2p9Obp-uU3rf4OVAEKOpjg'
+      const baseurl = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?'
+      let customurl = 'input=Kie&key='
+      axios.get(baseurl + customurl + key)
+        .then(({data}) => {
+          console.log(data)
         })
         .catch(console.warn)
     }
