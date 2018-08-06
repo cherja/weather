@@ -8,19 +8,33 @@
     <button @click="getCoordinate">Вычеслить координаты</button>
     <button @click="getWeather">Получить погоду</button>
     <button @click="getAutocomplete">Получить автозаполнение</button>
+    <vue-google-autocomplete
+      ref="address"
+      id="map"
+      classname="form-control"
+      placeholder="Please type your address"
+      v-on:placechanged="getAddressData"
+      types="geocode"
+    >
+    </vue-google-autocomplete>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import VueGoogleAutocomplete from 'vue-google-autocomplete'
 
 export default {
+  components: {
+    VueGoogleAutocomplete
+  },
   name: 'app',
   data () {
     return {
       longitude: '',
       latitude: '',
       data: {
+        address: '',
         main: {
           temp: '',
           feels_like: ''
@@ -58,6 +72,10 @@ export default {
           console.log(data)
         })
         .catch(console.warn)
+    },
+    getAddressData: function (addressData, placeResultData, id) {
+      this.address = addressData
+      console.log(this.address)
     }
   }
 }
@@ -67,5 +85,7 @@ export default {
 img {
   width:50px;
 }
-
+.form-control {
+  width:500px;
+}
 </style>
