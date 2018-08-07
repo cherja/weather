@@ -2,8 +2,13 @@
   <div id="app">
     <button class="button_open_weather" @click="isShowModalWeather = true, isShowWidgetWeather = true"></button>
     <div :class="['widget-weather', { 'widget-weather_night': night}]" v-show="isShowWidgetWeather">
-      <p>Темпервтура: {{this.data.main.temp}}</p>
-      <img :src="`https://openweathermap.org/img/w/${this.data.weather[0].icon}.png`" alt="">
+      <div class="icon">
+        <img :src="`https://openweathermap.org/img/w/${this.data.weather[0].icon}.png`" alt="">
+      </div>
+      <div class="indication">
+        <p>{{this.data.main.temp}}</p>
+        <p>{{this.data.weather[0].description}}</p>
+      </div>
     </div>
     <transition name="modal">
       <div v-show="isShowModalWeather" class="modal-mask">
@@ -16,14 +21,24 @@
               <option v-for="(item,i) in theme" :key="i">{{item}}</option>
             </select>
           </div>
-        <button @click="getCoordinate">Текущее местоположение</button>
-        <input ref="autocomplete"
-          placeholder="Search"
-          class="search-location"
-          type="text"
-        />
+          <div class="settings-location">
+            <p>
+              <button @click="getCoordinate">Текущее местоположение</button>
+            </p>
+            <p>
+              Адрес для погоды
+            </p>
+            <input ref="autocomplete"
+              placeholder="Search"
+              class="search-location"
+              type="text"
+            />
+          </div>
         <button class="modal-container__close" @click="isShowModalWeather = false">
           Закрыть
+        </button>
+        <button class="modal-container__save">
+          Сохранить
         </button>
         </div>
       </div>
@@ -102,8 +117,16 @@ export default {
 
 <style lang="scss">
 
+.icon {
+  width:150px;
+}
+
+.indication {
+ font-size: 20px;
+}
+
 img {
-  width:50px;
+  width:100%;
 }
 .search-location {
   width: 300px;
@@ -111,6 +134,7 @@ img {
 
 .widget-weather {
   background-color: rgba(30, 219, 233, 0.1);
+  display: flex;
 }
 
 .widget-weather_night {
