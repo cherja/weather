@@ -1,13 +1,15 @@
 <template>
   <div id="app">
     <button class="button_open_weather" @click="isShowModalWeather = true, isShowWidgetWeather = true"></button>
-    <div :class="['widget-weather', { 'widget-weather_night': night}]" v-show="isShowWidgetWeather">
-      <div class="icon">
-        <img :src="`https://openweathermap.org/img/w/${this.data.weather[0].icon}.png`" alt="">
-      </div>
-      <div class="indication">
-        <p>{{this.data.main.temp}}</p>
-        <p>{{this.data.weather[0].description}}</p>
+    <div class="widget-weather" v-show="isShowWidgetWeather">
+      <div :class="['current-weather', { 'current-weather_night': night}]">
+        <div class="icon-block">
+          <img :src="`https://openweathermap.org/img/w/${this.data.list[0].weather[0].icon}.png`" alt="">
+        </div>
+        <div class="indication-block">
+          <p>{{this.data.list[0].main.temp}}°</p>
+          <p>{{this.data.list[0].weather[0].description}}</p>
+        </div>
       </div>
     </div>
     <transition name="modal">
@@ -17,14 +19,17 @@
           <div class="settings-weather">
             <h2>Настройки погоды</h2>
             <p>Тема:</p>
-            <select v-model="themes">
-              <option v-for="(item,i) in theme" :key="i">{{item}}</option>
+            <select v-model="theme">
+              <option v-for="(item,i) in themes" :key="i">{{item}}</option>
+            </select>
+            <p>Единица измерения</p>
+            <select v-model="unit">
+              <option v-for="(item,i) in units" :key="i">{{item}}</option>
             </select>
           </div>
           <div class="settings-location">
-            <p>
-              <button @click="getCoordinate">Текущее местоположение</button>
-            </p>
+            <h2>Настройки локации</h2>
+            <p><input type="checkbox" @click="getCoordinate">Использовать мою текущую позицию</p>
             <p>
               Адрес для погоды
             </p>
@@ -34,11 +39,11 @@
               type="text"
             />
           </div>
+        <button :disabled="dis" class="modal-container__save">
+          Сохранить
+        </button>
         <button class="modal-container__close" @click="isShowModalWeather = false">
           Закрыть
-        </button>
-        <button class="modal-container__save">
-          Сохранить
         </button>
         </div>
       </div>
@@ -54,23 +59,35 @@ export default {
   name: 'app',
   data () {
     return {
+      dis: false,
       isShowModalWeather: false,
       isShowWidgetWeather: false,
-      themes: 'День',
       night: false,
-      theme: [
+      themes: [
         'День',
         'Ночь'
       ],
+      theme: 'День',
+      units: [
+        'По цельсию',
+        'По Фаренгейту'
+      ],
+      unit: 'По цельсию',
+      unitApi: 'metric',
       data: {
-        address: '',
-        main: {
-          temp: '',
-          feels_like: ''
-        },
-        weather: [{
-          icon: '03n'
-        }]
+        list: [
+          {
+            main: {
+              temp: ''
+            },
+            weather: [
+              {
+                description: '',
+                icon: '02n'
+              }
+            ]
+          }
+        ]
       }
     }
   },
@@ -94,7 +111,7 @@ export default {
       })
     },
     getWeather (lon, lat) {
-      const url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=ru&APPID=${APPID}`
+      const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${this.unitApi}&lang=ru&APPID=${APPID}`
       axios.get(url)
         .then(({data}) => {
           console.log(data)
@@ -104,11 +121,18 @@ export default {
     }
   },
   watch: {
-    themes: function () {
-      if (this.themes === 'Ночь') {
+    theme: function () {
+      if (this.theme === 'Ночь') {
         this.night = true
       } else {
         this.night = false
+      }
+    },
+    unit () {
+      if (this.unit === 'По цельсию') {
+        this.unitApi = 'metric'
+      } else {
+        this.unitApi = 'imperial'
       }
     }
   }
@@ -117,28 +141,38 @@ export default {
 
 <style lang="scss">
 
-.icon {
+.icon-block {
   width:150px;
+
+    img {
+    width:100%;
+  }
 }
 
-.indication {
+.indication-block {
  font-size: 20px;
 }
 
-img {
-  width:100%;
+.current-weather {
+  display: flex;
+  background-color: rgba(30, 219, 233, 0.1);
 }
 .search-location {
   width: 300px;
 }
+.settings-location {
+  padding: 20px;
+  margin: 20px;
+  margin-left: 0px;
+  padding-left: 0px;
+}
 
 .widget-weather {
-  background-color: rgba(30, 219, 233, 0.1);
   display: flex;
 }
 
-.widget-weather_night {
-  background-color: rgba(0, 0, 0, .3);
+.current-weather_night {
+  background-color: rgba(0, 0, 0, .1);
 }
 
 .button_open_weather {
