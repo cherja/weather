@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <button class="button_open_weather" @click="isShowModalWeather = true, isShowWidgetWeather = true"></button>
+    <button class="button_open_weather" @click="isShowModalWeather = true"></button>
     <div class="widget-weather" v-show="isShowWidgetWeather">
       <div :class="['current-weather', { 'current-weather_night': night}]">
         <div class="icon-block">
@@ -10,6 +10,7 @@
           <p>{{this.data.list[0].main.temp}}°</p>
           <p>{{this.data.list[0].weather[0].description}}</p>
         </div>
+        <button class="widget-weather_close"  @click="isShowWidgetWeather = false">Х</button>
       </div>
     </div>
     <transition name="modal">
@@ -39,7 +40,7 @@
               type="text"
             />
           </div>
-        <button :disabled="dis" class="modal-container__save">
+        <button :disabled="dis" @click="isShowWidgetWeather = true, isShowModalWeather = false" class="modal-container__save">
           Сохранить
         </button>
         <button class="modal-container__close" @click="isShowModalWeather = false">
@@ -59,7 +60,7 @@ export default {
   name: 'app',
   data () {
     return {
-      dis: false,
+      dis: true,
       isShowModalWeather: false,
       isShowWidgetWeather: false,
       night: false,
@@ -116,6 +117,7 @@ export default {
         .then(({data}) => {
           console.log(data)
           this.data = data
+          this.dis = false
         })
         .catch(console.warn)
     }
@@ -155,8 +157,19 @@ export default {
 
 .current-weather {
   display: flex;
+  position: relative;
   background-color: rgba(30, 219, 233, 0.1);
 }
+
+.widget-weather_close {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
 .search-location {
   width: 300px;
 }
