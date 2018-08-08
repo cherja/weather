@@ -4,11 +4,14 @@
     <div class="widget-weather" v-show="isShowWidgetWeather">
       <div :class="['current-weather', { 'current-weather_night': night}]">
         <div class="icon-block">
-          <img :src="`https://openweathermap.org/img/w/${this.data.list[0].weather[0].icon}.png`" alt="">
+          <weather-icon
+            :code="data.list[0].weather[0].icon"
+            :time-of-day="this.weather.timeOfDay"
+          />
         </div>
         <div class="indication-block">
-          <p>{{this.data.list[0].main.temp}}°</p>
-          <p>{{this.data.list[0].weather[0].description}}</p>
+          <p>{{data.list[0].main.temp}}°</p>
+          <p>{{data.list[0].weather[0].description}}</p>
         </div>
         <button class="widget-weather_close"  @click="isShowWidgetWeather = false">Х</button>
       </div>
@@ -50,17 +53,30 @@
         </div>
       </div>
     </transition>
+    <!-- <input type="text" v-model="myCodes"> -->
+    <!-- <weather-icon
+      :code="this.myCodes"
+      :time-of-day="this.weather.timeOfDay"
+    /> -->
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import weatherIcon from './components/weatherIcon.vue'
 const APPID = '0072928dcc9b5b634bfff2cbf46fe606'
 
 export default {
+  components: {
+    weatherIcon
+  },
   name: 'app',
   data () {
     return {
+      myCodes: '02d',
+      weather: {
+        timeOfDay: 'day'
+      },
       dis: true,
       isShowModalWeather: false,
       isShowWidgetWeather: false,
@@ -108,10 +124,12 @@ export default {
   },
   methods: {
     getCoordinate () {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.getWeather(position.coords.longitude, position.coords.latitude)
-        this.$refs.autocomplete.value = ''
-      })
+      // navigator.geolocation.getCurrentPosition((position) => {
+      //   this.getWeather(position.coords.longitude, position.coords.latitude)
+      //   this.$refs.autocomplete.value = ''
+      // })
+      this.getWeather(39.72328, 47.23135)
+      this.$refs.autocomplete.value = ''
     },
     getWeather (lon, lat) {
       const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${this.unitApi}&lang=ru&APPID=${APPID}`
@@ -144,14 +162,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-.icon-block {
-  width:150px;
-
-    img {
-    width:100%;
-  }
-}
 
 .indication-block {
  font-size: 20px;
