@@ -34,13 +34,14 @@
             <p>
               Адрес для погоды
             </p>
-            <input ref="autocomplete"
+            <input
+              ref="autocomplete"
               placeholder="Search"
               class="search-location"
               type="text"
             />
           </div>
-        <button :disabled="dis" @click="isShowWidgetWeather = true, isShowModalWeather = false" class="modal-container__save">
+        <button :disabled="dis" @click="isShowWidgetWeather = true, isShowModalWeather = false, $refs.autocomplete.value = ''" class="modal-container__save">
           Сохранить
         </button>
         <button class="modal-container__close" @click="isShowModalWeather = false">
@@ -109,6 +110,7 @@ export default {
     getCoordinate () {
       navigator.geolocation.getCurrentPosition((position) => {
         this.getWeather(position.coords.longitude, position.coords.latitude)
+        this.$refs.autocomplete.value = ''
       })
     },
     getWeather (lon, lat) {
