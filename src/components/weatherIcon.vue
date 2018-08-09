@@ -33,7 +33,7 @@
       </symbol>
     </svg>
     <svg class="icon"><use :xlink:href="'#' + icon "/></svg>
-    <!-- <svg @click="getDay" class="icon"><use xlink:href="#clear-sky-night"/></svg> -->
+    <!-- <svg class="icon"><use xlink:href="#clear-sky-night"/></svg> -->
   </span>
 </template>
 
@@ -43,45 +43,41 @@ export default {
     code: {
       type: String,
       required: true
-    },
-    timeOfDay: {
-      type: String,
-      required: true
     }
   },
   data () {
     return {
       icons: [
         { // Чистое небо днем
-          day: 'clear-sky-day',
+          iconId: 'clear-sky-day',
           codes: ['01d']
         },
         { // Чистое небо ночью
-          day: 'clear-sky-night',
+          iconId: 'clear-sky-night',
           codes: ['01n']
         },
         { // Слабая облачность днем
-          day: 'few-clouds-day',
+          iconId: 'few-clouds-day',
           codes: ['02d']
         },
         { // Слабая облачность ночью
-          day: 'few-clouds-night',
+          iconId: 'few-clouds-night',
           codes: ['02n']
         },
         { // Рассеянные облака
-          day: 'scattered-clouds',
+          iconId: 'scattered-clouds',
           codes: ['03n', '03d', '04d', '04n']
         },
         { // Дождь
-          day: 'rain',
+          iconId: 'rain',
           codes: ['09n', '09d', '10d', '10n']
         },
         { // Гроза
-          day: 'thunderstorm',
+          iconId: 'thunderstorm',
           codes: ['11n', '11d']
         },
         { // Снег
-          day: 'snow',
+          iconId: 'snow',
           codes: ['13n', '13d']
         },
         { // Туман днём
@@ -98,15 +94,7 @@ export default {
   computed: {
     icon () {
       const code = this.code
-      return this.icons.find(icon => icon.codes.includes(code))[this.timeOfDay]
-    }
-  },
-  methods: {
-    getDay () {
-      console.log(this.code)
-      console.log(this.timeOfDay)
-      console.log(this.icons[0]['day'])
-      console.log(this.icons.find(icon => icon.codes.includes(this.code))[this.timeOfDay])
+      return this.icons.find(icon => icon.codes.includes(code))['iconId']
     }
   }
 }

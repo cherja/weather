@@ -1,15 +1,12 @@
 <template>
   <div id="app">
-    <button class="button_open_weather" @click="isShowModalWeather = true"></button>
-    <div class="widget-weather" @click="isShowWidgetWeather = false" v-show="isShowWidgetWeather">
-      <div class="current-weather">
+    <button class="button_open_modal-weather " @click="isShowModalWeather = true"></button>
+    <div class="widget-weather" v-show="isShowWidgetWeather">
+      <div class="current-weather" @click="isShowWidgetWeather = false">
         <div class="icon-block">
-          <weather-icon
-            :code="data.list[0].weather[0].icon"
-            :time-of-day="this.weather.timeOfDay"
-          />
+          <weather-icon :code="data.list[0].weather[0].icon" />
         </div>
-        <div :class="['indication-block', { 'current-weather_night': night}]">
+        <div :class="['indication-block', { 'current-weather_light': light}]">
           <p class="indication-block__temp">{{roundRound}}°</p>
           <p>{{capitalizeFirstLetter}}</p>
         </div>
@@ -33,31 +30,33 @@
           </div>
           <div class="settings-location">
             <h2>Настройки локации</h2>
-            <p><input type="checkbox" @click="getCoordinate">Использовать мою текущую позицию</p>
+            <p><input type="checkbox" id="checkbox" v-model="checked" @click="getCoordinate">Использовать мою текущую позицию</p>
             <p>
               Адрес для погоды
             </p>
             <input
               ref="autocomplete"
               placeholder="Search"
-              class="search-location"
+              class="search-location__input"
               type="text"
+              @click="checked = false"
             />
           </div>
-        <button :disabled="dis" @click="isShowWidgetWeather = true, isShowModalWeather = false, $refs.autocomplete.value = ''" class="modal-container__save">
-          Сохранить
-        </button>
-        <button class="modal-container__close" @click="isShowModalWeather = false">
-          Закрыть
-        </button>
+          <div class="modal-container__btns">
+            <button :disabled="disableBtnShowWeather" @click="isShowWidgetWeather = true, isShowModalWeather = false, $refs.autocomplete.value = '', checked = false, disableBtnShowWeather = true" class="modal-container__save">
+              Сохранить
+            </button>
+            <button class="modal-container__close" @click="isShowModalWeather = false">
+              Закрыть
+            </button>
+          </div>
         </div>
       </div>
     </transition>
-    <input type="text" v-model="myCodes">
+    <!-- <input type="text" v-model="myCodes">
     <weather-icon
       :code="this.myCodes"
-      :time-of-day="this.weather.timeOfDay"
-    />
+    /> -->
   </div>
 </template>
 
@@ -73,19 +72,17 @@ export default {
   name: 'app',
   data () {
     return {
+      checked: false,
       myCodes: '02d',
-      weather: {
-        timeOfDay: 'day'
-      },
-      dis: true,
+      disableBtnShowWeather: true,
       isShowModalWeather: false,
       isShowWidgetWeather: false,
-      night: false,
+      light: false,
       themes: [
-        'День',
-        'Ночь'
+        'По умолчанию',
+        'Светлая'
       ],
-      theme: 'День',
+      theme: 'По умолчанию',
       units: [
         'По цельсию',
         'По Фаренгейту'
@@ -137,7 +134,7 @@ export default {
         .then(({data}) => {
           console.log(data)
           this.data = data
-          this.dis = false
+          this.disableBtnShowWeather = false
         })
         .catch(console.warn)
     }
@@ -152,10 +149,10 @@ export default {
   },
   watch: {
     theme: function () {
-      if (this.theme === 'Ночь') {
-        this.night = true
+      if (this.theme === 'Светлая') {
+        this.light = true
       } else {
-        this.night = false
+        this.light = false
       }
     },
     unit () {
@@ -171,49 +168,7 @@ export default {
 
 <style lang="scss">
 
-.indication-block {
- font-size: 40px;
- p {
-  margin: 10px;
- }
- .indication-block__temp {
-   font-size: 50px;
- }
-}
-
-.current-weather {
-  display: flex;
-  position: relative;
-}
-
-.widget-weather_close {
-  position: absolute;
-  top: 1px;
-  right: 1px;
-  outline: none;
-  border: none;
-  background: transparent;
-}
-
-.search-location {
-  width: 300px;
-}
-.settings-location {
-  padding: 20px;
-  margin: 20px;
-  margin-left: 0px;
-  padding-left: 0px;
-}
-
-.widget-weather {
-  display: flex;
-}
-
-.current-weather_night {
-  color: rgb(129, 129, 129);
-}
-
-.button_open_weather {
+.button_open_modal-weather {
   width: 100px;
   height: 100px;
   outline: none;
@@ -224,11 +179,54 @@ export default {
   border:none;
 }
 
+.indication-block {
+ font-size: 40px;
+ p {
+  margin: 10px;
+ }
+ .indication-block__temp {
+   font-size: 50px;
+ }
+}
+
+.widget-weather {
+  display: flex;
+
+}
+
+.modal-container__btns {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-location {
+  padding: 20px;
+  margin: 20px;
+  margin-left: 0px;
+  padding-left: 0px;
+}
+
+.search-location__input {
+  width: 300px;
+  margin-bottom: 100px;
+}
+
+.current-weather {
+  display: flex;
+  position: relative;
+}
+
+.current-weather_light {
+  color: rgb(129, 129, 129);
+}
+
 .modal-mask {
-  position: fixed;
+  position: absolute;
   z-index: 9;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, .1);
@@ -236,11 +234,9 @@ export default {
   align-items: center;
   justify-content: center;
   transition: opacity .3s ease;
-  padding: 0px 20px;
 }
 
 .modal-container {
-  position: relative;
   width: 580px;
   margin: 0px auto;
   padding: 20px 30px;
