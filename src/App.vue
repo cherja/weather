@@ -1,19 +1,19 @@
 <template>
   <div id="app">
     <button class="button_open_weather" @click="isShowModalWeather = true"></button>
-    <div class="widget-weather" v-show="isShowWidgetWeather">
-      <div :class="['current-weather', { 'current-weather_night': night}]">
+    <div class="widget-weather" @click="isShowWidgetWeather = false" v-show="isShowWidgetWeather">
+      <div class="current-weather">
         <div class="icon-block">
           <weather-icon
             :code="data.list[0].weather[0].icon"
             :time-of-day="this.weather.timeOfDay"
           />
         </div>
-        <div class="indication-block">
-          <p>{{data.list[0].main.temp}}°</p>
-          <p>{{data.list[0].weather[0].description}}</p>
+        <div :class="['indication-block', { 'current-weather_night': night}]">
+          <p class="indication-block__temp">{{roundRound}}°</p>
+          <p>{{capitalizeFirstLetter}}</p>
         </div>
-        <button class="widget-weather_close"  @click="isShowWidgetWeather = false">Х</button>
+        <!-- <button class="widget-weather_close"  @click="isShowWidgetWeather = false">Х</button> -->
       </div>
     </div>
     <transition name="modal">
@@ -53,11 +53,11 @@
         </div>
       </div>
     </transition>
-    <!-- <input type="text" v-model="myCodes"> -->
-    <!-- <weather-icon
+    <input type="text" v-model="myCodes">
+    <weather-icon
       :code="this.myCodes"
       :time-of-day="this.weather.timeOfDay"
-    /> -->
+    />
   </div>
 </template>
 
@@ -142,6 +142,14 @@ export default {
         .catch(console.warn)
     }
   },
+  computed: {
+    capitalizeFirstLetter () {
+      return this.data.list[0].weather[0].description.charAt(0).toUpperCase() + this.data.list[0].weather[0].description.slice(1)
+    },
+    roundRound () {
+      return Math.round(this.data.list[0].main.temp)
+    }
+  },
   watch: {
     theme: function () {
       if (this.theme === 'Ночь') {
@@ -164,13 +172,18 @@ export default {
 <style lang="scss">
 
 .indication-block {
- font-size: 20px;
+ font-size: 40px;
+ p {
+  margin: 10px;
+ }
+ .indication-block__temp {
+   font-size: 50px;
+ }
 }
 
 .current-weather {
   display: flex;
   position: relative;
-  background-color: rgba(30, 219, 233, 0.1);
 }
 
 .widget-weather_close {
@@ -197,7 +210,7 @@ export default {
 }
 
 .current-weather_night {
-  background-color: rgba(0, 0, 0, .1);
+  color: rgb(129, 129, 129);
 }
 
 .button_open_weather {
