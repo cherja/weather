@@ -10,7 +10,6 @@
           <p class="indication-block__temp">{{roundRound}}°</p>
           <p>{{capitalizeFirstLetter}}</p>
         </div>
-        <!-- <button class="widget-weather_close"  @click="isShowWidgetWeather = false">Х</button> -->
       </div>
     </div>
     <transition name="modal">
@@ -21,29 +20,31 @@
             <h2>Настройки погоды</h2>
             <p>Тема:</p>
             <select v-model="theme">
-              <option v-for="(item,i) in themes" :key="i">{{item}}</option>
+              <option v-for="(theme,i) in themes" :key="i">{{theme}}</option>
             </select>
             <p>Единица измерения</p>
             <select v-model="unit">
-              <option v-for="(item,i) in units" :key="i">{{item}}</option>
+              <option v-for="(unit,i) in units" :key="i">{{unit}}</option>
             </select>
           </div>
           <div class="settings-location">
             <h2>Настройки локации</h2>
-            <p><input type="checkbox" id="checkbox" v-model="checked" @click="getCoordinate">Использовать мою текущую позицию</p>
-            <p>
-              Адрес для погоды
-            </p>
-            <input
-              ref="autocomplete"
-              placeholder="Search"
-              class="search-location__input"
-              type="text"
-              @click="checked = false"
-            />
+            <p><input type="checkbox" id="checkbox" v-model="checked" @click="getCoordinate(), searchLocationInput = !searchLocationInput">Использовать мою текущую позицию</p>
+            <div :class="{ 'search-location': searchLocationInput }">
+              <p>
+                Адрес для погоды
+              </p>
+              <input
+                ref="autocomplete"
+                placeholder="Search"
+                class="search-location__input"
+                type="text"
+                @click="checked = false"
+              />
+            </div>
           </div>
           <div class="modal-container__btns">
-            <button :disabled="disableBtnShowWeather" @click="isShowWidgetWeather = true, isShowModalWeather = false, $refs.autocomplete.value = '', checked = false, disableBtnShowWeather = true" class="modal-container__save">
+            <button :disabled="disableBtnShowWeather" @click="isShowWidgetWeather = true, isShowModalWeather = false " class="modal-container__save">
               Сохранить
             </button>
             <button class="modal-container__close" @click="isShowModalWeather = false">
@@ -72,8 +73,11 @@ export default {
   name: 'app',
   data () {
     return {
+      array: [],
+      arrayDay: [],
       checked: false,
       myCodes: '02d',
+      searchLocationInput: false,
       disableBtnShowWeather: true,
       isShowModalWeather: false,
       isShowWidgetWeather: false,
@@ -126,15 +130,35 @@ export default {
       //   this.$refs.autocomplete.value = ''
       // })
       this.getWeather(39.72328, 47.23135)
-      this.$refs.autocomplete.value = ''
     },
     getWeather (lon, lat) {
       const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${this.unitApi}&lang=ru&APPID=${APPID}`
       axios.get(url)
         .then(({data}) => {
-          console.log(data)
+          const currentTime = data.list[0].dt_txt
           this.data = data
           this.disableBtnShowWeather = false
+          this.array = data.list
+          var ourArray = []
+          this.array.forEach((item) => {
+            let date = new Date(item.dt_txt).toLocaleDateString()
+            if (!this.arrayDay.includes(date)) {
+              this.arrayDay.push(date)
+            }
+          })
+          var generetadArray = []
+          for (var i = 0; i<this.arrayDay.length; i++) {
+            generetadArray.push({date: this.arrayDay[i], temps: []})
+          }
+          for (var i = 0; i <generetadArray.length;i++) {
+            for (var j = 0; j <this.array.length; j++) {
+              var da = new Date(this.array[j].dt_txt)
+              if (generetadArray[i].date === da.toLocaleDateString()) {
+                generetadArray[i].temps.push(this.array[j].main.temp)
+              }
+            }
+          }
+          console.log(generetadArray)
         })
         .catch(console.warn)
     }
@@ -167,7 +191,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 .button_open_modal-weather {
   width: 100px;
   height: 100px;
@@ -176,22 +199,21 @@ export default {
   background-size: contain;
   background-repeat: no-repeat;
   background-image: url(./weather.jpg);
-  border:none;
+  border: none;
 }
 
 .indication-block {
- font-size: 40px;
- p {
-  margin: 10px;
- }
- .indication-block__temp {
-   font-size: 50px;
- }
+  font-size: 40px;
+  p {
+    margin: 10px;
+  }
+  .indication-block__temp {
+    font-size: 50px;
+  }
 }
 
 .widget-weather {
   display: flex;
-
 }
 
 .modal-container__btns {
@@ -204,6 +226,10 @@ export default {
   margin: 20px;
   margin-left: 0px;
   padding-left: 0px;
+}
+
+.search-location {
+  visibility: hidden;
 }
 
 .search-location__input {
@@ -229,11 +255,11 @@ export default {
   bottom: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, .1);
+  background-color: rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity .3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-container {
@@ -241,8 +267,8 @@ export default {
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
 }
 

@@ -81,11 +81,11 @@ export default {
           codes: ['13n', '13d']
         },
         { // Туман днём
-          day: 'mist-day',
+          iconId: 'mist-day',
           codes: ['50d']
         },
         { // Туман ночью
-          day: 'mist-night',
+          iconId: 'mist-night',
           codes: ['50n']
         }
       ]
