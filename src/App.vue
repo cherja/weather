@@ -54,27 +54,44 @@
         </div>
       </div>
     </transition>
-    <!-- <input type="text" v-model="myCodes">
-    <weather-icon
-      :code="this.myCodes"
-    /> -->
+    <div>
+      <h1>Завтра</h1>
+      <weather-day :obj="generetadArray[1]" />
+    </div>
+    <div>
+      <h1>Послезавтра</h1>
+      <weather-day :obj="generetadArray[2]" />
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import weatherIcon from './components/weatherIcon.vue'
+import weatherDay from './components/weatherDay.vue'
 const APPID = '0072928dcc9b5b634bfff2cbf46fe606'
 
 export default {
   components: {
-    weatherIcon
+    weatherIcon,
+    weatherDay
   },
   name: 'app',
   data () {
     return {
       array: [],
       arrayDay: [],
+      generetadArray: [
+        {
+          temps: [0]
+        },
+        {
+          temps: [0]
+        },
+        {
+          temps: [0]
+        }
+      ],
       checked: false,
       myCodes: '02d',
       searchLocationInput: false,
@@ -135,11 +152,10 @@ export default {
       const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${this.unitApi}&lang=ru&APPID=${APPID}`
       axios.get(url)
         .then(({data}) => {
-          const currentTime = data.list[0].dt_txt
           this.data = data
           this.disableBtnShowWeather = false
           this.array = data.list
-          var ourArray = []
+          console.log(data.list)
           this.array.forEach((item) => {
             let date = new Date(item.dt_txt).toLocaleDateString()
             if (!this.arrayDay.includes(date)) {
@@ -147,18 +163,19 @@ export default {
             }
           })
           var generetadArray = []
-          for (var i = 0; i<this.arrayDay.length; i++) {
+          for (var i = 0; i < this.arrayDay.length; i++) {
             generetadArray.push({date: this.arrayDay[i], temps: []})
           }
-          for (var i = 0; i <generetadArray.length;i++) {
-            for (var j = 0; j <this.array.length; j++) {
+          for (let i = 0; i < generetadArray.length; i++) {
+            for (var j = 0; j < this.array.length; j++) {
               var da = new Date(this.array[j].dt_txt)
               if (generetadArray[i].date === da.toLocaleDateString()) {
                 generetadArray[i].temps.push(this.array[j].main.temp)
               }
             }
           }
-          console.log(generetadArray)
+          this.generetadArray = generetadArray
+          console.log(this.generetadArray)
         })
         .catch(console.warn)
     }
@@ -169,6 +186,14 @@ export default {
     },
     roundRound () {
       return Math.round(this.data.list[0].main.temp)
+    }
+  },
+  filters: {
+    maxTemp (value) {
+      return Math.round(Math.max(...value))
+    },
+    minTemp (value) {
+      return Math.round(Math.min(...value))
     }
   },
   watch: {
